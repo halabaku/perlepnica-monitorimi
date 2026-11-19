@@ -21,11 +21,17 @@ def send(cfg, subject, body):
     msg = EmailMessage()
     msg["Subject"], msg["From"], msg["To"] = subject, cfg["user"] or "perlepnica@localhost", cfg["to"]
     msg.set_content(body)
-    with smtplib.SMTP(cfg["host"], cfg["port"], timeout=20) as s:
-        s.starttls()
-        if cfg["user"]:
-            s.login(cfg["user"], cfg["password"])
-        s.send_message(msg)
+    if cfg["port"] == 465:
+        with smtplib.SMTP_SSL(cfg["host"], cfg["port"], timeout=20) as s:
+            if cfg["user"]:
+                s.login(cfg["user"], cfg["password"])
+            s.send_message(msg)
+    else:
+        with smtplib.SMTP(cfg["host"], cfg["port"], timeout=20) as s:
+            s.starttls()
+            if cfg["user"]:
+                s.login(cfg["user"], cfg["password"])
+            s.send_message(msg)
 
 
 def last_zone():
